@@ -2252,27 +2252,6 @@ function registerUnsignedTxTools(server: McpServer) {
                 text: `Insufficient allowance. Please approve at least ${amount} ${allowance.token.symbol} for the exchange contract.`,
               },
             ],
-            tool_output: {
-              action: "approve_erc20",
-              tokenAddress: srcTokenAddress,
-              spenderAddress: spenderAddress,
-              amount: amount, // The amount to approve
-              network: network,
-              // After approval, the client can call the limit order tool again.
-              next_action: {
-                tool: "place_limit_order",
-                params: {
-                  amount,
-                  destTokenAddress,
-                  srcTokenAddress,
-                  fillDelay,
-                  limitPrice,
-                  chunks,
-                  deadline,
-                  network,
-                },
-              },
-            },
           };
         }
 
