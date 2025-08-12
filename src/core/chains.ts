@@ -2,9 +2,9 @@ import type { Chain } from 'viem';
 import { sei, seiDevnet, seiTestnet } from 'viem/chains';
 
 // Default configuration values
-export const DEFAULT_NETWORK = 'sei-testnet';
-export const DEFAULT_RPC_URL = 'https://evm-rpc-testnet.sei-apis.com';
-export const DEFAULT_CHAIN_ID = 1328;
+export const DEFAULT_NETWORK = 'sei';
+export const DEFAULT_RPC_URL = 'https://evm-rpc.sei-apis.com';
+export const DEFAULT_CHAIN_ID = 1329;
 
 // Map chain IDs to chains
 export const chainMap: Record<number, Chain> = {

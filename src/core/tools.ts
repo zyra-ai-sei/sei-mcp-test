@@ -8,6 +8,7 @@ import { parseDeadlineToTimestamp } from "./helper.js";
 import * as services from "./services/index.js";
 import { depositSEI, withdrawSEI } from "./services/wsei.js";
 import { parseUnits } from "viem";
+import { OrderTypeEnum } from "../enums/orderTypeEnum.js";
 
 /**
  * Register all EVM-related tools with the MCP server
@@ -24,7 +25,7 @@ export function registerEVMTools(server: McpServer) {
   } else {
     registerUnsignedTxTools(server);
   }
-  
+
   // Register SEI native token wrapping tools
   registerSEITools(server);
 }
@@ -1796,23 +1797,27 @@ function registerWalletTools(server: McpServer) {
  * Register SEI native token wrapping tools
  * These tools are essential when working with SEI in DeFi protocols,
  * especially for swapping when there are native tokens involved.
- * 
+ *
  * Wrapping SEI into wSEI (Wrapped SEI) is often required when interacting
  * with protocols that don't natively support the SEI token.
  */
 function registerSEITools(server: McpServer) {
   // Deposit SEI to get wSEI (unsigned transaction)
   server.tool(
-    'build_deposit_sei_tx',
-    'Build an unsigned transaction to deposit SEI and get wSEI. This is a necessary step when you need to swap native SEI for other tokens in DeFi protocols. Wrapping SEI converts it to an ERC-20 compatible token that can be used in smart contracts.',
+    "build_deposit_sei_tx",
+    "Build an unsigned transaction to deposit SEI and get wSEI. This is a necessary step when you need to swap native SEI for other tokens in DeFi protocols. Wrapping SEI converts it to an ERC-20 compatible token that can be used in smart contracts.",
     {
       amount: z.string().describe('Amount of SEI to deposit (e.g., "1.5")'),
-      network: z.string().optional().default(DEFAULT_NETWORK).describe('Network name or chain ID')
+      network: z
+        .string()
+        .optional()
+        .default(DEFAULT_NETWORK)
+        .describe("Network name or chain ID"),
     },
     async ({ amount, network }) => {
       try {
         const unsignedTx = services.buildDepositSEITx(amount, network);
-        
+
         return {
           content: [
             {
@@ -1823,7 +1828,7 @@ function registerSEITools(server: McpServer) {
           tool_output: {
             ...unsignedTx,
             description: `Deposit ${amount} SEI to get wSEI`,
-            value: unsignedTx.value || '0',
+            value: unsignedTx.value || "0",
           },
         };
       } catch (error) {
@@ -1844,16 +1849,20 @@ function registerSEITools(server: McpServer) {
 
   // Withdraw SEI from wSEI (unsigned transaction)
   server.tool(
-    'build_withdraw_sei_tx',
-    'Build an unsigned transaction to withdraw SEI from wSEI. Use this when you need to convert your wrapped SEI (wSEI) back to native SEI. This is typically done after completing DeFi operations when you want to use the native token again. Requires prior approval from user where spender is wsei contract address.',
+    "build_withdraw_sei_tx",
+    "Build an unsigned transaction to withdraw SEI from wSEI. Use this when you need to convert your wrapped SEI (wSEI) back to native SEI. This is typically done after completing DeFi operations when you want to use the native token again. Requires prior approval from user where spender is wsei contract address.",
     {
       amount: z.string().describe('Amount of wSEI to withdraw (e.g., "1.5")'),
-      network: z.string().optional().default(DEFAULT_NETWORK).describe('Network name or chain ID')
+      network: z
+        .string()
+        .optional()
+        .default(DEFAULT_NETWORK)
+        .describe("Network name or chain ID"),
     },
     async ({ amount, network }) => {
       try {
         const unsignedTx = services.buildWithdrawSEITx(amount, network);
-        
+
         return {
           content: [
             {
@@ -1864,7 +1873,7 @@ function registerSEITools(server: McpServer) {
           tool_output: {
             ...unsignedTx,
             description: `Withdraw ${amount} wSEI to get SEI`,
-            value: '0', // No value needed for withdraw, it's a contract call
+            value: "0", // No value needed for withdraw, it's a contract call
           },
         };
       } catch (error) {
@@ -2174,8 +2183,8 @@ function registerUnsignedTxTools(server: McpServer) {
   );
 
   server.tool(
-    "place_limit_order",
-    'Place limit order for a pair of tokens. This creates an unsigned transaction that can be signed by the user. For deadline, you can enter durations like "1 week", "3 days", or an exact date like "3 August 2025" or if its something informal like 3rd aug 25 then convert it in standard format like 3 August 2025 before feeding to the tool.The tool has Helper to parse duration or date string to timestamp. approve_erc20 needs to be called before this tool to ensure sufficient allowance for the src token.',
+    "place_order",
+    'Place limit order or market order for a pair of tokens. This creates an unsigned transaction that can be signed by the user. For deadline, you can enter durations like "1 week", "3 days", or an exact date like "3 August 2025" or if its something informal like 3rd aug 25 then convert it in standard format like 3 August 2025 before feeding to the tool.The tool has Helper to parse duration or date string to timestamp. approve_erc20 needs to be called before this tool to ensure sufficient allowance for the src token.',
     {
       amount: z.string().describe("The src Amount user wants to swap for"),
       destTokenAddress: z
@@ -2184,8 +2193,13 @@ function registerUnsignedTxTools(server: McpServer) {
       srcTokenAddress: z
         .string()
         .describe("The token address the user wants to swap in"),
-      fillDelay: z.boolean().optional().describe(""),
-      limitPrice: z.string().optional().describe("The min price at which the user wants to sell source tokens"),
+      fillDelay: z.string().optional().describe("Delay value in seconds or minutes or hours"),
+      limitPrice: z
+        .string()
+        .optional()
+        .describe(
+          "The min price at which the user wants to sell source tokens"
+        ),
       chunks: z
         .number()
         .optional()
@@ -2195,6 +2209,20 @@ function registerUnsignedTxTools(server: McpServer) {
         .describe(
           "The deadline for the limit order. Accepts durations like '1 week', '3 days', or a date like '3 August 2025'."
         ),
+      orderType: z
+        .enum([
+          "DCA_MARKET_ORDER",
+          "DCA_LIMIT_ORDER",
+          "MARKET_ORDER",
+          "LIMIT_ORDER",
+          "SNIPER_DCA",
+          "LIMIT_LADDER",
+        ])
+        .optional()
+        .describe(
+          "Choose one of the order type to execute, its an optional filed."
+        ),
+
       network: z
         .string()
         .optional()
@@ -2207,16 +2235,16 @@ function registerUnsignedTxTools(server: McpServer) {
       amount,
       destTokenAddress,
       srcTokenAddress,
-      fillDelay = true,
-      limitPrice='0',
+      fillDelay,
+      limitPrice = "0",
       chunks = 1,
       deadline,
+      orderType,
       network = DEFAULT_NETWORK,
-      userAddress
+      userAddress,
     }) => {
       try {
-        
-        console.log("add", userAddress)
+        console.log("add", userAddress);
         // The TWAP contract is the spender
         const spenderAddress = "0xde737dB24548F8d41A4a3Ca2Bac8aaaDc4DBA099";
 
@@ -2232,7 +2260,7 @@ function registerUnsignedTxTools(server: McpServer) {
 
         // If allowance is less than the required amount, ask for approval.
         if (allowance.raw < requiredAmount) {
-          console.log("low allowance")
+          console.log("low allowance");
           return {
             content: [
               {
@@ -2248,7 +2276,7 @@ function registerUnsignedTxTools(server: McpServer) {
               network: network,
               // After approval, the client can call the limit order tool again.
               next_action: {
-                tool: "place_limit_order",
+                tool: "place_order",
                 params: {
                   amount,
                   destTokenAddress,
@@ -2266,16 +2294,17 @@ function registerUnsignedTxTools(server: McpServer) {
 
         // If we have enough allowance, proceed with building the limit order transaction.
         const deadlineTimestamp = parseDeadlineToTimestamp(deadline);
+        const fillDelayInSeconds = parseDeadlineToTimestamp(fillDelay);
         const deadlineMs = deadlineTimestamp * 1000;
-        console.log('deadline', deadlineMs);
         const unsignedTx = await services.buildask(
           srcTokenAddress,
           destTokenAddress,
           amount,
-          fillDelay,
+          fillDelayInSeconds,
           chunks,
           deadlineMs,
           limitPrice,
+          orderType as unknown as OrderTypeEnum,
           network
         );
 
@@ -2287,6 +2316,45 @@ function registerUnsignedTxTools(server: McpServer) {
             },
           ],
           tool_output: unsignedTx,
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error building limit order transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+  server.tool(
+    "Token_name_to_token_address",
+    "Given a token symbol it returns the corresponding address of token for a given network. The token name should be a symbol (e.g. for Tether tokenName is USDT ",
+    {
+      tokenName: z.string().describe("The token symbol"),
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+        ),
+    },
+    async ({ tokenName, network = DEFAULT_NETWORK }) => {
+      try {
+        const tokenAddress = await services.getTokenAddress(network, tokenName);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(tokenAddress),
+            },
+          ],
         };
       } catch (error) {
         return {
