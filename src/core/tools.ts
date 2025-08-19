@@ -2274,20 +2274,6 @@ function registerUnsignedTxTools(server: McpServer) {
               spenderAddress: spenderAddress,
               amount: amount, // The amount to approve
               network: network,
-              // After approval, the client can call the limit order tool again.
-              next_action: {
-                tool: "place_order",
-                params: {
-                  amount,
-                  destTokenAddress,
-                  srcTokenAddress,
-                  fillDelay,
-                  limitPrice,
-                  chunks,
-                  deadline,
-                  network,
-                },
-              },
             },
           };
         }
