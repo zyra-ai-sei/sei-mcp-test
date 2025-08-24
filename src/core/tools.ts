@@ -2320,6 +2320,247 @@ function registerUnsignedTxTools(server: McpServer) {
     }
   );
   server.tool(
+    "get_token_prices",
+    "get twap data for specific timefram",
+    {
+      lookbackHours: z
+        .number()
+        .optional()
+        .describe("the lookback timeframe in hours"),
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+        ),
+    },
+    async ({ network = DEFAULT_NETWORK, lookbackHours = 1 }) => {
+      try {
+        // The TWAP contract is the spender
+        const spenderAddress = "0xde737dB24548F8d41A4a3Ca2Bac8aaaDc4DBA099";
+
+        // Check current allowance
+        const response = await services.getTwapData(lookbackHours, network);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(response, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error building limit order transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+  server.tool(
+    "get_current_token_prices",
+    "get curretn exchange rates",
+    {
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+        ),
+    },
+    async ({ network = DEFAULT_NETWORK }) => {
+      try {
+        // Check current allowance
+        const response = await services.getCurrentPrices(network);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(response, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error building limit order transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+  server.tool(
+    "get_price_of_token",
+    "get price of a specific token from the token symbol or name",
+    {
+      token: z
+        .string()
+        .describe("The token name or symbol you want to get the price for."),
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+        ),
+    },
+    async ({ token, network = DEFAULT_NETWORK }) => {
+      try {
+        // Check current allowance
+        const response = await services.getPriceForToken(token, network);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(response, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error building limit order transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+  server.tool(
+    "Token_name_to_token_address_or_address_to_name",
+    "Given a token symbol it returns the corresponding address of token or given a token address. The token name should be a symbol (e.g. for Tether tokenName is USDT).  ",
+    {
+      tokenInfo: z.string().describe("The token symbol"),
+    },
+    async ({ tokenInfo }) => {
+      try {
+        const token = await services.getTokenAddress(tokenInfo);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(token),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `error getting token address ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+  server.tool(
+    "get_current_token_prices",
+    "get curretn exchange rates",
+    {
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+        ),
+    },
+    async ({ network = DEFAULT_NETWORK }) => {
+      try {
+        // Check current allowance
+        const response = await services.getCurrentPrices(network);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(response, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error building limit order transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+  server.tool(
+    "get_price_of_token",
+    "get price of a specific token from the token symbol or name",
+    {
+      token: z
+        .string()
+        .describe("The token name or symbol you want to get the price for."),
+      network: z
+        .string()
+        .optional()
+        .describe(
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+        ),
+    },
+    async ({ token, network = DEFAULT_NETWORK }) => {
+      try {
+        // Check current allowance
+        const response = await services.getPriceForToken(token, network);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(response, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error building limit order transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+  server.tool(
     "Token_name_to_token_address_or_address_to_name",
     "Given a token symbol it returns the corresponding address of token or given a token address. The token name should be a symbol (e.g. for Tether tokenName is USDT).  ",
     {

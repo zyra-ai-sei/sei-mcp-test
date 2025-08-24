@@ -1,65 +1,121 @@
 // @ts-nocheck
-import { type Address, formatEther, formatUnits, getContract } from 'viem';
-import { DEFAULT_NETWORK } from '../chains.js';
-import { getPublicClient } from './clients.js';
-import { readContract } from './contracts.js';
-import * as services from './index.js';
+import { type Address, formatEther, formatUnits, getContract } from "viem";
+import { DEFAULT_NETWORK } from "../chains.js";
+import { getPublicClient } from "./clients.js";
+import { readContract } from "./contracts.js";
+import * as services from "./index.js";
+
+const ORACLE_PRECOMPILE_ADDRESS: `0x${string}` =
+  "0x0000000000000000000000000000000000001008";
+
+export const ORACLE_PRECOMPILE_ABI = [
+  {
+    inputs: [],
+    name: "getExchangeRates",
+    outputs: [
+      {
+        components: [
+          { internalType: "string", name: "denom", type: "string" },
+          {
+            components: [
+              { internalType: "string", name: "exchangeRate", type: "string" },
+              { internalType: "string", name: "lastUpdate", type: "string" },
+              {
+                internalType: "int64",
+                name: "lastUpdateTimestamp",
+                type: "int64",
+              },
+            ],
+            internalType: "struct IOracle.OracleExchangeRate",
+            name: "oracleExchangeRateVal",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct IOracle.DenomOracleExchangeRatePair[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "uint64", name: "lookback_seconds", type: "uint64" },
+    ],
+    name: "getOracleTwaps",
+    outputs: [
+      {
+        components: [
+          { internalType: "string", name: "denom", type: "string" },
+          { internalType: "string", name: "twap", type: "string" },
+          { internalType: "int64", name: "lookbackSeconds", type: "int64" },
+        ],
+        internalType: "struct IOracle.OracleTwap[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
 
 // Standard ERC20 ABI (minimal for reading)
 const erc20Abi = [
-	{
-		inputs: [],
-		name: 'symbol',
-		outputs: [{ type: 'string' }],
-		stateMutability: 'view',
-		type: 'function'
-	},
-	{
-		inputs: [],
-		name: 'decimals',
-		outputs: [{ type: 'uint8' }],
-		stateMutability: 'view',
-		type: 'function'
-	},
-	{
-		inputs: [{ type: 'address', name: 'account' }],
-		name: 'balanceOf',
-		outputs: [{ type: 'uint256' }],
-		stateMutability: 'view',
-		type: 'function'
-	}
+  {
+    inputs: [],
+    name: "symbol",
+    outputs: [{ type: "string" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [{ type: "uint8" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ type: "address", name: "account" }],
+    name: "balanceOf",
+    outputs: [{ type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ] as const;
 
 // Standard ERC721 ABI (minimal for reading)
 const erc721Abi = [
-	{
-		inputs: [{ type: 'address', name: 'owner' }],
-		name: 'balanceOf',
-		outputs: [{ type: 'uint256' }],
-		stateMutability: 'view',
-		type: 'function'
-	},
-	{
-		inputs: [{ type: 'uint256', name: 'tokenId' }],
-		name: 'ownerOf',
-		outputs: [{ type: 'address' }],
-		stateMutability: 'view',
-		type: 'function'
-	}
+  {
+    inputs: [{ type: "address", name: "owner" }],
+    name: "balanceOf",
+    outputs: [{ type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ type: "uint256", name: "tokenId" }],
+    name: "ownerOf",
+    outputs: [{ type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ] as const;
 
 // Standard ERC1155 ABI (minimal for reading)
 const erc1155Abi = [
-	{
-		inputs: [
-			{ type: 'address', name: 'account' },
-			{ type: 'uint256', name: 'id' }
-		],
-		name: 'balanceOf',
-		outputs: [{ type: 'uint256' }],
-		stateMutability: 'view',
-		type: 'function'
-	}
+  {
+    inputs: [
+      { type: "address", name: "account" },
+      { type: "uint256", name: "id" },
+    ],
+    name: "balanceOf",
+    outputs: [{ type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ] as const;
 
 /**
@@ -68,16 +124,19 @@ const erc1155Abi = [
  * @param network Network name or chain ID
  * @returns Balance in wei and sei
  */
-export async function getBalance(address: string, network = DEFAULT_NETWORK): Promise<{ wei: bigint; sei: string }> {
-	const validatedAddress = services.helpers.validateAddress(address);
+export async function getBalance(
+  address: string,
+  network = DEFAULT_NETWORK
+): Promise<{ wei: bigint; sei: string }> {
+  const validatedAddress = services.helpers.validateAddress(address);
 
-	const client = getPublicClient(network);
-	const balance = await client.getBalance({ address: validatedAddress });
+  const client = getPublicClient(network);
+  const balance = await client.getBalance({ address: validatedAddress });
 
-	return {
-		wei: balance,
-		sei: formatEther(balance)
-	};
+  return {
+    wei: balance,
+    sei: formatEther(balance),
+  };
 }
 
 /**
@@ -88,38 +147,42 @@ export async function getBalance(address: string, network = DEFAULT_NETWORK): Pr
  * @returns Token balance with formatting information
  */
 export async function getERC20Balance(
-	tokenAddress: string,
-	ownerAddress: string,
-	network = DEFAULT_NETWORK
+  tokenAddress: string,
+  ownerAddress: string,
+  network = DEFAULT_NETWORK
 ): Promise<{
-	raw: bigint;
-	formatted: string;
-	token: {
-		symbol: string;
-		decimals: number;
-	};
+  raw: bigint;
+  formatted: string;
+  token: {
+    symbol: string;
+    decimals: number;
+  };
 }> {
-	const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
-	const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
+  const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
+  const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
 
-	const publicClient = getPublicClient(network);
+  const publicClient = getPublicClient(network);
 
-	const contract = getContract({
-		address: validatedTokenAddress,
-		abi: erc20Abi,
-		client: publicClient
-	});
+  const contract = getContract({
+    address: validatedTokenAddress,
+    abi: erc20Abi,
+    client: publicClient,
+  });
 
-	const [balance, symbol, decimals] = await Promise.all([contract.read.balanceOf([validatedOwnerAddress]), contract.read.symbol(), contract.read.decimals()]);
+  const [balance, symbol, decimals] = await Promise.all([
+    contract.read.balanceOf([validatedOwnerAddress]),
+    contract.read.symbol(),
+    contract.read.decimals(),
+  ]);
 
-	return {
-		raw: balance,
-		formatted: formatUnits(balance, decimals),
-		token: {
-			symbol,
-			decimals
-		}
-	};
+  return {
+    raw: balance,
+    formatted: formatUnits(balance, decimals),
+    token: {
+      symbol,
+      decimals,
+    },
+  };
 }
 
 /**
@@ -130,26 +193,35 @@ export async function getERC20Balance(
  * @param network Network name or chain ID
  * @returns True if the address owns the NFT
  */
-export async function isNFTOwner(tokenAddress: string, ownerAddress: string, tokenId: bigint, network = DEFAULT_NETWORK): Promise<boolean> {
-	const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
-	const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
+export async function isNFTOwner(
+  tokenAddress: string,
+  ownerAddress: string,
+  tokenId: bigint,
+  network = DEFAULT_NETWORK
+): Promise<boolean> {
+  const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
+  const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
 
-	try {
-		const actualOwner = (await readContract(
-			{
-				address: validatedTokenAddress,
-				abi: erc721Abi,
-				functionName: 'ownerOf',
-				args: [tokenId]
-			},
-			network
-		)) as Address;
+  try {
+    const actualOwner = (await readContract(
+      {
+        address: validatedTokenAddress,
+        abi: erc721Abi,
+        functionName: "ownerOf",
+        args: [tokenId],
+      },
+      network
+    )) as Address;
 
-		return actualOwner.toLowerCase() === validatedOwnerAddress.toLowerCase();
-	} catch (error: unknown) {
-		console.error(`Error checking NFT ownership: ${error instanceof Error ? error.message : String(error)}`);
-		return false;
-	}
+    return actualOwner.toLowerCase() === validatedOwnerAddress.toLowerCase();
+  } catch (error: unknown) {
+    console.error(
+      `Error checking NFT ownership: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+    return false;
+  }
 }
 
 /**
@@ -159,19 +231,83 @@ export async function isNFTOwner(tokenAddress: string, ownerAddress: string, tok
  * @param network Network name or chain ID
  * @returns Number of NFTs owned
  */
-export async function getERC721Balance(tokenAddress: string, ownerAddress: string, network = DEFAULT_NETWORK): Promise<bigint> {
-	const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
-	const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
+export async function getERC721Balance(
+  tokenAddress: string,
+  ownerAddress: string,
+  network = DEFAULT_NETWORK
+): Promise<bigint> {
+  const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
+  const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
 
-	return (await readContract(
-		{
-			address: validatedTokenAddress,
-			abi: erc721Abi,
-			functionName: 'balanceOf',
-			args: [validatedOwnerAddress]
-		},
-		network
-	)) as Promise<bigint>;
+  return (await readContract(
+    {
+      address: validatedTokenAddress,
+      abi: erc721Abi,
+      functionName: "balanceOf",
+      args: [validatedOwnerAddress],
+    },
+    network
+  )) as Promise<bigint>;
+}
+
+export async function getCurrentPrices(network = DEFAULT_NETWORK) {
+  const exchangeRates = await readContract({
+    address: ORACLE_PRECOMPILE_ADDRESS,
+    abi: ORACLE_PRECOMPILE_ABI,
+    functionName: "getExchangeRates",
+  });
+  console.log('twap', exchangeRates[0].denom)
+
+  return exchangeRates.map((rate) => ({
+    denom: rate.denom,
+    price: parseFloat(rate.oracleExchangeRateVal.exchangeRate),
+    lastUpdate: new Date(
+      Number(rate.oracleExchangeRateVal.lastUpdateTimestamp) * 1000
+    ),
+    lastUpdateString: rate.oracleExchangeRateVal.lastUpdate,
+  }));
+}
+
+export async function getTwapData(
+  lookbackHours = 1,
+  network = DEFAULT_NETWORK
+) {
+  const lookbackSeconds = BigInt(lookbackHours * 3600);
+
+  const twapData = await readContract({
+    address: ORACLE_PRECOMPILE_ADDRESS,
+    abi: ORACLE_PRECOMPILE_ABI,
+    functionName: "getOracleTwaps",
+    args: [lookbackSeconds],
+  });
+  console.log('twap', twapData[0].denom)
+  return twapData.map((twap) => ({
+    denom: twap.denom,
+    price: parseFloat(twap.twap),
+    lookbackHours: Number(twap.lookbackSeconds) / 3600,
+  }));
+}
+
+export async function getPriceForToken(token: string, network=DEFAULT_NETWORK){
+  const exchangeRates = await getCurrentPrices(network);
+  const availableTokens = [
+    "usdc",
+    "usdt",
+    "eth",
+    "btc",
+    "sei"
+  ]
+  let targetDenom = ""
+  for(let i = 0; i<availableTokens.length; i++){
+    const availableToken = availableTokens[i];
+    if(token.includes(availableToken)){
+      targetDenom = "u"+availableToken;
+      break;
+    }
+  }
+
+  return exchangeRates.find(rate => rate.denom === targetDenom);
+
 }
 
 /**
@@ -182,17 +318,22 @@ export async function getERC721Balance(tokenAddress: string, ownerAddress: strin
  * @param network Network name or chain ID
  * @returns Token balance
  */
-export async function getERC1155Balance(tokenAddress: string, ownerAddress: string, tokenId: bigint, network = DEFAULT_NETWORK): Promise<bigint> {
-	const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
-	const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
+export async function getERC1155Balance(
+  tokenAddress: string,
+  ownerAddress: string,
+  tokenId: bigint,
+  network = DEFAULT_NETWORK
+): Promise<bigint> {
+  const validatedTokenAddress = services.helpers.validateAddress(tokenAddress);
+  const validatedOwnerAddress = services.helpers.validateAddress(ownerAddress);
 
-	return (await readContract(
-		{
-			address: validatedTokenAddress,
-			abi: erc1155Abi,
-			functionName: 'balanceOf',
-			args: [validatedOwnerAddress, tokenId]
-		},
-		network
-	)) as Promise<bigint>;
+  return (await readContract(
+    {
+      address: validatedTokenAddress,
+      abi: erc1155Abi,
+      functionName: "balanceOf",
+      args: [validatedOwnerAddress, tokenId],
+    },
+    network
+  )) as Promise<bigint>;
 }
