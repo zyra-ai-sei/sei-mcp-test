@@ -3,7 +3,7 @@ import { sei, seiDevnet, seiTestnet } from 'viem/chains';
 
 // Default configuration values
 export const DEFAULT_NETWORK = 'sei';
-export const DEFAULT_RPC_URL = 'https://evm-rpc.sei-apis.com';
+export const DEFAULT_RPC_URL = 'https://sei-mainnet.g.alchemy.com/v2/dKBLYw8YHi0oTm9nRKSEk';
 export const DEFAULT_CHAIN_ID = 1329;
 
 // Map chain IDs to chains

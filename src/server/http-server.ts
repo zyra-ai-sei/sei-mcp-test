@@ -45,7 +45,8 @@ startServer()
 // Define routes
 // @ts-ignore
 app.get('/sse', (req: Request, res: Response) => {
-	console.error(`Received SSE connection request from ${req.ip}`);
+	connections.clear();
+	console.error(`Received SSE connection request from ${req.ip}`, connections.size);
 	console.error(`Query parameters: ${JSON.stringify(req.query)}`);
 	// Set CORS headers explicitly
 	res.setHeader('Access-Control-Allow-Origin', '*');
@@ -97,6 +98,7 @@ app.get('/sse', (req: Request, res: Response) => {
 				console.error(`Error connecting transport to server: ${error}`);
 				connections.delete(sessionId);
 			});
+		
 	} catch (error) {
 		console.error(`Error creating SSE transport: ${error}`);
 		connections.delete(sessionId);
