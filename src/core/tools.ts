@@ -2184,7 +2184,7 @@ function registerUnsignedTxTools(server: McpServer) {
 
   server.tool(
     "place_order",
-    'Place limit order or market order for a pair of tokens. This creates an unsigned transaction that can be signed by the user. For deadline, you can enter durations like "1 week", "3 days", or an exact date like "3 August 2025" or if its something informal like 3rd aug 25 then convert it in standard format like 3 August 2025 before feeding to the tool.The tool has Helper to parse duration or date string to timestamp. approve_erc20 needs to be called before this tool to ensure sufficient allowance for the src token.',
+    'Place limit order or market order for a pair of tokens. This creates an unsigned transaction that can be signed by the user. For deadline, you can enter durations like "1 week", "3 days", or an exact date like "3 August 2025" or if its something informal like 3rd aug 25 then convert it in standard format like 3 August 2025 before feeding to the tool.The tool has Helper to parse duration or date string to timestamp. approve_erc20 needs to be called before this tool to ensure sufficient allowance for the src token. If the from or to token is a native token (sei) then it needs to be wrapped or unwrapped to wsei accordingly using appropriate tool in the MCP.',
     {
       amount: z.string().describe("The src Amount user wants to swap for"),
       destTokenAddress: z
@@ -2229,7 +2229,7 @@ function registerUnsignedTxTools(server: McpServer) {
         .describe(
           "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
         ),
-      userAddress: z.string().optional().describe("The user address"),
+      userAddress: z.string().describe("The user address"),
     },
     async ({
       amount,
@@ -2257,7 +2257,7 @@ function registerUnsignedTxTools(server: McpServer) {
         );
 
         const requiredAmount = parseUnits(amount, allowance.token.decimals);
-
+        console.log("parseunits", deadline)
         // If allowance is less than the required amount, ask for approval.
         if (allowance.raw < requiredAmount) {
           console.log("low allowance");
@@ -2294,8 +2294,9 @@ function registerUnsignedTxTools(server: McpServer) {
 
         // If we have enough allowance, proceed with building the limit order transaction.
         const deadlineTimestamp = parseDeadlineToTimestamp(deadline);
-        const fillDelayInSeconds = parseDeadlineToTimestamp(fillDelay);
+        const fillDelayInSeconds = fillDelay ? parseDeadlineToTimestamp(fillDelay) : null;
         const deadlineMs = deadlineTimestamp * 1000;
+        console.log("building ask");
         const unsignedTx = await services.buildask(
           srcTokenAddress,
           destTokenAddress,
@@ -2361,7 +2362,7 @@ function registerUnsignedTxTools(server: McpServer) {
           content: [
             {
               type: "text",
-              text: `Error building limit order transaction: ${
+              text: `error getting token address ${
                 error instanceof Error ? error.message : String(error)
               }`,
             },
