@@ -45,7 +45,7 @@ function registerReadOnlyTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to sei ."
         ),
     },
     async ({ network = DEFAULT_NETWORK }) => {
@@ -137,7 +137,7 @@ function registerReadOnlyTools(server: McpServer) {
       network: z
         .string()
         .optional()
-        .describe("Network name or chain ID. Defaults to Sei mainnet."),
+        .describe("Network name or chain ID. Defaults to sei."),
     },
     async ({ blockNumber, network = DEFAULT_NETWORK }) => {
       try {
@@ -175,7 +175,7 @@ function registerReadOnlyTools(server: McpServer) {
       network: z
         .string()
         .optional()
-        .describe("Network name or chain ID. Defaults to Sei mainnet."),
+        .describe("Network name or chain ID. Defaults to sei."),
     },
     async ({ network = DEFAULT_NETWORK }) => {
       try {
@@ -221,7 +221,7 @@ function registerReadOnlyTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to sei."
         ),
     },
     async ({ address, network = DEFAULT_NETWORK }) => {
@@ -271,7 +271,7 @@ function registerReadOnlyTools(server: McpServer) {
       network: z
         .string()
         .optional()
-        .describe("Network name or chain ID. Defaults to Sei mainnet."),
+        .describe("Network name or chain ID. Defaults to sei."),
     },
     async ({ address, tokenAddress, network = DEFAULT_NETWORK }) => {
       try {
@@ -337,7 +337,7 @@ function registerReadOnlyTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to sei."
         ),
     },
     async ({ tokenAddress, ownerAddress, network = DEFAULT_NETWORK }) => {
@@ -398,7 +398,7 @@ function registerReadOnlyTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Defaults to sei."
         ),
     },
     async ({ txHash, network = DEFAULT_NETWORK }) => {
@@ -438,7 +438,7 @@ function registerReadOnlyTools(server: McpServer) {
       network: z
         .string()
         .optional()
-        .describe("Network name or chain ID. Defaults to Sei mainnet."),
+        .describe("Network name or chain ID. Defaults to sei."),
     },
     async ({ txHash, network = DEFAULT_NETWORK }) => {
       try {
@@ -488,7 +488,7 @@ function registerReadOnlyTools(server: McpServer) {
       network: z
         .string()
         .optional()
-        .describe("Network name or chain ID. Defaults to Sei mainnet."),
+        .describe("Network name or chain ID. Defaults to sei."),
     },
     async ({ to, value, data, network = DEFAULT_NETWORK }) => {
       try {
@@ -559,7 +559,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({ to, amount, network = DEFAULT_NETWORK }) => {
@@ -618,7 +618,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({ tokenAddress, toAddress, amount, network = DEFAULT_NETWORK }) => {
@@ -690,7 +690,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({
@@ -763,7 +763,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Most NFTs are on Sei mainnet, which is the default."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Most NFTs are on sei, which is the default."
         ),
     },
     async ({ tokenAddress, tokenId, toAddress, network = DEFAULT_NETWORK }) => {
@@ -837,7 +837,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. ERC1155 tokens exist across many networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. ERC1155 tokens exist across many networks. Defaults to sei."
         ),
     },
     async ({
@@ -916,7 +916,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Supports all Sei networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Supports all Sei networks. Defaults to sei."
         ),
     },
     async ({ tokenAddress, toAddress, amount, network = DEFAULT_NETWORK }) => {
@@ -994,7 +994,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({
@@ -1068,7 +1068,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({
@@ -1148,7 +1148,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({ bytecode, abi, args = [], network = DEFAULT_NETWORK }) => {
@@ -1216,7 +1216,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet', etc.) or chain ID. Supports all Sei networks. Defaults to sei."
         ),
     },
     async ({ address, network = DEFAULT_NETWORK }) => {
@@ -1272,7 +1272,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({ tokenAddress, network = DEFAULT_NETWORK }) => {
@@ -1324,7 +1324,7 @@ function registerWalletTools(server: McpServer) {
       network: z
         .string()
         .optional()
-        .describe("Network name or chain ID. Defaults to Sei mainnet."),
+        .describe("Network name or chain ID. Defaults to sei."),
     },
     async ({ address, tokenAddress, network = DEFAULT_NETWORK }) => {
       try {
@@ -1388,7 +1388,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', ) or chain ID. Most NFTs are on Sei mainnet, which is the default."
+          "Network name (e.g., 'sei', ) or chain ID. Most NFTs are on sei, which is the default."
         ),
     },
     async ({ tokenAddress, tokenId, network = DEFAULT_NETWORK }) => {
@@ -1475,7 +1475,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet' etc.) or chain ID. Supports all Sei networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet' etc.) or chain ID. Supports all Sei networks. Defaults to sei."
         ),
     },
     async ({
@@ -1548,7 +1548,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. ERC1155 tokens exist across many networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. ERC1155 tokens exist across many networks. Defaults to sei."
         ),
     },
     async ({ tokenAddress, tokenId, network = DEFAULT_NETWORK }) => {
@@ -1611,7 +1611,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Most NFTs are on Sei mainnet, which is the default."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Most NFTs are on sei, which is the default."
         ),
     },
     async ({ tokenAddress, ownerAddress, network = DEFAULT_NETWORK }) => {
@@ -1679,7 +1679,7 @@ function registerWalletTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. ERC1155 tokens exist across many networks. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. ERC1155 tokens exist across many networks. Defaults to sei."
         ),
     },
     async ({
@@ -1906,7 +1906,7 @@ function registerUnsignedTxTools(server: McpServer) {
       network: z
         .string()
         .optional()
-        .describe("Network name or chain ID. Defaults to Sei mainnet."),
+        .describe("Network name or chain ID. Defaults to sei."),
     },
     async ({ to, amount, network = DEFAULT_NETWORK }) => {
       try {
@@ -1959,7 +1959,7 @@ function registerUnsignedTxTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({ tokenAddress, toAddress, amount, network = DEFAULT_NETWORK }) => {
@@ -2014,7 +2014,7 @@ function registerUnsignedTxTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({
@@ -2071,7 +2071,7 @@ function registerUnsignedTxTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({
@@ -2135,7 +2135,7 @@ function registerUnsignedTxTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
     },
     async ({
@@ -2227,7 +2227,7 @@ function registerUnsignedTxTools(server: McpServer) {
         .string()
         .optional()
         .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
+          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to sei."
         ),
       userAddress: z.string().describe("The user address"),
     },
@@ -2274,20 +2274,6 @@ function registerUnsignedTxTools(server: McpServer) {
               spenderAddress: spenderAddress,
               amount: amount, // The amount to approve
               network: network,
-              // After approval, the client can call the limit order tool again.
-              next_action: {
-                tool: "place_order",
-                params: {
-                  amount,
-                  destTokenAddress,
-                  srcTokenAddress,
-                  fillDelay,
-                  limitPrice,
-                  chunks,
-                  deadline,
-                  network,
-                },
-              },
             },
           };
         }
@@ -2334,26 +2320,20 @@ function registerUnsignedTxTools(server: McpServer) {
     }
   );
   server.tool(
-    "Token_name_to_token_address",
-    "Given a token symbol it returns the corresponding address of token for a given network. The token name should be a symbol (e.g. for Tether tokenName is USDT ",
+    "Token_name_to_token_address_or_address_to_name",
+    "Given a token symbol it returns the corresponding address of token or given a token address. The token name should be a symbol (e.g. for Tether tokenName is USDT).  ",
     {
-      tokenName: z.string().describe("The token symbol"),
-      network: z
-        .string()
-        .optional()
-        .describe(
-          "Network name (e.g., 'sei', 'sei-testnet', 'sei-devnet') or chain ID. Defaults to Sei mainnet."
-        ),
+      tokenInfo: z.string().describe("The token symbol"),
     },
-    async ({ tokenName, network = DEFAULT_NETWORK }) => {
+    async ({ tokenInfo }) => {
       try {
-        const tokenAddress = await services.getTokenAddress(network, tokenName);
+        const token = await services.getTokenAddress(tokenInfo);
 
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(tokenAddress),
+              text: JSON.stringify(token),
             },
           ],
         };
