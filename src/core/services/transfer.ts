@@ -437,9 +437,26 @@ export async function buildSeiTransferTx(
   const publicClient = getPublicClient(network);
   const validatedToAddress = services.helpers.validateAddress(toAddress);
   const amountWei = parseEther(amount);
-  return {
+  
+  const txRequest = {
     to: validatedToAddress,
     value: amountWei.toString(),
+  };
+
+  // Return both the transaction and metadata
+  return {
+    transaction: txRequest,
+    metadata: {
+      types: {
+        to: "address",
+        value: "uint256",
+      },
+      token: {
+        symbol: "SEI",
+        decimals: 18,
+        formattedAmount: amount
+      }
+    }
   };
 }
 
@@ -460,7 +477,10 @@ export async function buildTransferERC20(
     client: publicClient as any,
   });
   // Get token decimals and symbol
-  const decimals = await contract.read.decimals();
+  const [decimals, symbol] = await Promise.all([
+    contract.read.decimals(),
+    contract.read.symbol().catch(() => "Unknown")
+  ]);
   // Parse the amount with the correct number of decimals
   const rawAmount = parseUnits(amount, decimals);
   const txRequest = {
@@ -469,7 +489,22 @@ export async function buildTransferERC20(
     functionName: "transfer",
     args: [validatedToAddress, rawAmount.toString()],
   };
-  return txRequest;
+  
+  // Return both the transaction and metadata
+  return {
+    transaction: txRequest,
+    metadata: {
+      types: {
+        address: "erc20",
+        args: ["address", "uint256"],
+      },
+      token: {
+        symbol,
+        decimals,
+        formattedAmount: amount
+      }
+    }
+  };
 }
 
 export async function buildApproveERC20(
@@ -489,17 +524,36 @@ export async function buildApproveERC20(
     client: publicClient,
   });
 
-  // Get token decimals
-  const decimals = await contract.read.decimals();
+  // Get token decimals and symbol
+  const [decimals, symbol] = await Promise.all([
+    contract.read.decimals(),
+    contract.read.symbol().catch(() => "Unknown")
+  ]);
 
   // Parse the amount with the correct number of decimals
   const rawAmount = parseUnits(amount, decimals);
 
-  return {
+  const txRequest = {
     address: tokenAddress,
     abi: erc20TransferAbi,
     functionName: "approve",
     args: [validatedSpenderAddress, rawAmount.toString()],
+  };
+
+  // Return both the transaction and metadata
+  return {
+    transaction: txRequest,
+    metadata: {
+      types: {
+        address: "erc20",
+        args: ["address", "uint256"],
+      },
+      token: {
+        symbol,
+        decimals,
+        formattedAmount: amount
+      }
+    }
   };
 }
 
@@ -514,11 +568,46 @@ export async function buildTransferERC721(
   const validatedFromAddress = services.helpers.validateAddress(fromAddress);
   const validatedToAddress = services.helpers.validateAddress(toAddress);
 
-  return {
+  // Try to get NFT metadata if available
+  let tokenName = "NFT";
+  let tokenSymbol = "";
+  
+  const publicClient = getPublicClient(network);
+  const contract = getContract({
+    address: validatedTokenAddress,
+    abi: erc721TransferAbi,
+    client: publicClient,
+  });
+
+  try {
+    // These may fail if the NFT doesn't implement these methods
+    tokenName = await contract.read.name().catch(() => "NFT");
+    tokenSymbol = await contract.read.symbol().catch(() => "");
+  } catch (error) {
+    console.error("Error fetching NFT metadata:", error);
+  }
+
+  const txRequest = {
     address: tokenAddress,
     abi: erc721TransferAbi,
     functionName: "transferFrom",
     args: [validatedFromAddress, validatedToAddress, tokenId],
+  };
+
+  // Return both the transaction and metadata
+  return {
+    transaction: txRequest,
+    metadata: {
+      types: {
+        address: "address",
+        args: ["address", "address", "uint256"],
+      },
+      token: {
+        name: tokenName,
+        symbol: tokenSymbol,
+        tokenId: tokenId.toString()
+      }
+    }
   };
 }
 
@@ -537,11 +626,47 @@ export async function buildTransferERC1155(
   // Parse amount to bigint
   const amountBigInt = BigInt(amount);
 
-  return {
+  // Try to get token metadata if available
+  let tokenName = "ERC1155";
+  let tokenSymbol = "";
+  
+  const publicClient = getPublicClient(network);
+  const contract = getContract({
+    address: validatedTokenAddress,
+    abi: erc1155TransferAbi,
+    client: publicClient,
+  });
+
+  try {
+    // These may fail if the token doesn't implement these methods
+    tokenName = await contract.read.name().catch(() => "ERC1155");
+    tokenSymbol = await contract.read.symbol().catch(() => "");
+  } catch (error) {
+    console.error("Error fetching ERC1155 metadata:", error);
+  }
+
+  const txRequest = {
     address: tokenAddress,
     abi: erc1155TransferAbi,
     functionName: "safeTransferFrom",
     args: [validatedFromAddress, validatedToAddress, tokenId.toString(), amountBigInt.toString(), "0x"],
+  };
+
+  // Return both the transaction and metadata
+  return {
+    transaction: txRequest,
+    metadata: {
+      types: {
+        address: "address",
+        args: ["address", "address", "uint256", "uint256", "bytes"],
+      },
+      token: {
+        name: tokenName,
+        symbol: tokenSymbol,
+        tokenId: tokenId.toString(),
+        formattedAmount: amount
+      }
+    }
   };
 }
 

@@ -2281,7 +2281,6 @@ function registerUnsignedTxTools(server: McpServer) {
         // If we have enough allowance, proceed with building the limit order transaction.
         const deadlineTimestamp = parseDeadlineToTimestamp(deadline);
         const fillDelayInSeconds = fillDelay ? parseDeadlineToTimestamp(fillDelay) : null;
-        const deadlineMs = deadlineTimestamp * 1000;
         console.log("building ask");
         const unsignedTx = await services.buildask(
           srcTokenAddress,
@@ -2289,7 +2288,7 @@ function registerUnsignedTxTools(server: McpServer) {
           amount,
           fillDelayInSeconds,
           chunks,
-          deadlineMs,
+          deadlineTimestamp,
           limitPrice,
           orderType as unknown as OrderTypeEnum,
           network

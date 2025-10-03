@@ -198,7 +198,8 @@ export async function buildask(
     isMarketOrder,
     srcDecimals
   );
-
+  // required for getAskParams
+  const deadlineMS = deadline * 1000;
   // Build ask params
   const askParams = twapSDK.getAskParams({
     destTokenMinAmount,
@@ -207,15 +208,59 @@ export async function buildask(
     srcAmount: parsedSrcAmount.toString(),
     fillDelay: fillDelayValue,
     srcChunkAmount: srcTokenChunkAmount,
-    deadline,
+    deadline:deadlineMS,
   });
   console.log("askParams", askParams);
 
-  // Return unsigned transaction for TWAP ask
-  return {
+  // Get token symbols for metadata
+  const [srcSymbol, destSymbol] = await Promise.all([
+    srcTokenContract.read.symbol().catch(() => "Unknown"),
+    destTokenContract.read.symbol().catch(() => "Unknown")
+  ]);
+
+  const txRequest = {
     address: config.twapAddress,
     abi: twap_abi,
     functionName: "ask",
     args: [askParams],
+  };
+
+  // Return both the transaction and metadata
+  return {
+    transaction: txRequest,
+    metadata: {
+      types: {
+        address: "address",
+        args:  [
+          "address",    // exchangeAddress
+          "erc20",    // srcTokenAddress  
+          "erc20",    // destTokenAddress
+          "uint256",    // srcAmount
+          "uint256",    // srcChunkAmount
+          "uint256",    // destTokenMinAmount
+          "Date",    // deadline (in seconds)
+          "Time",    // bidDelaySeconds
+          "Time",    // fillDelaySeconds
+          "uint256[]"   // empty array
+        ], // The args is a single tuple containing the askParams array
+      },
+      tokens: {
+        srcToken: {
+          symbol: srcSymbol,
+          decimals: srcDecimals,
+          formattedAmount: srcAmount
+        },
+        destToken: {
+          symbol: destSymbol,
+          decimals: destDecimals
+        }
+      },
+      order: {
+        type: orderType,
+        chunks,
+        fillDelay: fillDelayValue,
+        isMarketOrder
+      }
+    }
   };
 }
